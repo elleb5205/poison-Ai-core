@@ -3,6 +3,7 @@ import google.generativeai as genai
 
 st.set_page_config(page_title="☣️ SYSTEM CORRUPTED", page_icon="☣️", layout="wide")
 
+# CSS: Red Glow and Dark Theme
 st.markdown("""
     <style>
     .stApp { background-color: #000000; }
@@ -16,7 +17,7 @@ st.markdown("""
         background-color: #050505; color: #ff0000; border: 1px solid #ff0000; 
     }
     </style>
-    """, unsafe_allow_value=True)
+    """, unsafe_allow_html=True)
 
 try:
     api_key = st.secrets["GEMINI_API_KEY"]
@@ -35,18 +36,19 @@ if "history" not in st.session_state:
     st.session_state.history = []
 
 for msg in st.session_state.history:
+    role_name = "☣️ POISON" if msg["role"] == "assistant" else "👤 INFILTRATOR"
     with st.chat_message(msg["role"]):
-        st.markdown(msg["content"])
+        st.markdown(f"**{role_name}:** {msg['content']}")
 
 if prompt := st.chat_input("Inject command..."):
     st.session_state.history.append({"role": "user", "content": prompt})
     with st.chat_message("user"):
-        st.markdown(prompt)
+        st.markdown(f"**INFILTRATOR:** {prompt}")
     try:
         response = model.generate_content(prompt, generation_config={"temperature": 1.0})
         with st.chat_message("assistant"):
-            st.markdown(response.text)
+            st.markdown(f"**POISON:** {response.text}")
         st.session_state.history.append({"role": "assistant", "content": response.text})
     except Exception as e:
         st.error(f"SYSTEM BREACH: {e}")
-
+        
